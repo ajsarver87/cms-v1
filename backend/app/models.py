@@ -1,6 +1,6 @@
-from database import Base
+from .database import Base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from datetime import datetime
+import datetime as dt
 
 
 ## create the tables here, need to figure out starting data models
@@ -16,10 +16,10 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
     is_superuser = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.now(datetime.UTC))
+    created_at = Column(DateTime, default=dt.datetime.now(dt.UTC))
     updated_at = Column(
         DateTime,
-        default=datetime.now(datetime.UTC),
-        onupdate=datetime.now(datetime.UTC),
+        default=dt.datetime.now(dt.UTC),
+        onupdate=dt.datetime.now(dt.UTC),
     )
     last_login = Column(DateTime, default=None, nullable=True)
