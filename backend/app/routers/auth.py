@@ -34,6 +34,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 # Register a New User
+# TODO: Fix Password Hashing functionality
 @router.post("/auth/register", status_code=status.HTTP_201_CREATED)
 async def register_user(db: db_dependency, create_user_request: createUserRequest):
     create_user_model = User(
