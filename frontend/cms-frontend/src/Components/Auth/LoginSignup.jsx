@@ -67,19 +67,18 @@ export const LoginSignup = () => {
     }
 
     /// 1. Create the login data object from state variables
-    const loginData = {
-      username: userName,
-      password: password,
-    };
+    const loginData = new URLSearchParams();
+    loginData.append('username', userName);
+    loginData.append('password', password);
 
     /// 2. Make the POST request using the fetch API
     try {
       const response = await fetch('http://localhost:8000/auth/token', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify(loginData),
+        body: loginData,
       });
 
       /// 3. Handle the response
