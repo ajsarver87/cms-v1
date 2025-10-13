@@ -76,21 +76,25 @@ export const LoginSignup = () => {
         {/* Conditionally render the Name input field for Sign Up */}
         {action === "Sign Up" && (
           <div>
-            <div className="input">
-              <input
-                type="text"
-                placeholder='First Name'
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </div>
-            <div className="input">
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
+            <div className="name-inputs">
+              <div className="input">
+                <img src={user_icon} alt="" />
+                <input
+                  type="text"
+                  placeholder='First Name'
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div className="input">
+                <img src={user_icon} alt="" />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
             </div>
             <div className="input">
               <img src={email_icon} alt="" />

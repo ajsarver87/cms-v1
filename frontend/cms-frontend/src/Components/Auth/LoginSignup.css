@@ -97,3 +97,15 @@
     background: #eaeaea;
     color: #676767
 }
+
+.name-inputs {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 480px;
+    margin: 0 auto 25px;
+}
+
+.name-inputs .input {
+    width: 230px;
+}
