@@ -20,6 +20,7 @@ export const LoginSignup = () => {
   /// --- Function to handle Sign Up POST request ---
   const handleSignUp = async () => {
     if (action === "Login") {
+      setAction("Sign Up");
       return;
     }
 
@@ -30,7 +31,7 @@ export const LoginSignup = () => {
       password: password,
       first_name: firstName,
       last_name: lastName,
-    }
+    };
 
     /// 2. Make the POST request using the fetch API
     try {
@@ -45,12 +46,12 @@ export const LoginSignup = () => {
       /// 3. Handle the response
       if (!response.ok) {
         const errorData = await response.json();
-        alert('Error: ${errorData.detail}');
+        alert(`Error: ${errorData.detail}`);
         return;
       }
 
       const result = await response.json();
-      alert('User ${result.username} registered successfully!');
+      alert(`User ${result.username} registered successfully!`);
       setAction("Login");
     } catch (error) {
       console.error('Error during sign up:', error);
@@ -61,10 +62,41 @@ export const LoginSignup = () => {
   /// --- Function to handle login POST request ---
   const handleLogin = async () => {
     if (action === "Sign Up") {
+      setAction("Login");
       return;
     }
-    alert("Login functionality to be implemented");
-  }
+
+    /// 1. Create the login data object from state variables
+    const loginData = {
+      username: userName,
+      password: password,
+    };
+
+    /// 2. Make the POST request using the fetch API
+    try {
+      const response = await fetch('http://localhost:8000/auth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      /// 3. Handle the response
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.detail}`);
+        return;
+      }
+
+      const result = await response.json();
+      alert(`Login successful! Token: ${result.access}`);
+      localStorage.setItem('token', result.access);
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('An error occurred. Please try again later.');
+    }
+  };
 
   return (
     <div className='container'>
@@ -127,8 +159,8 @@ export const LoginSignup = () => {
         </div>
         {action === "Sign Up" ? <div></div> : <div className="forgot-password">Lost Password? <span>Click Here!</span></div>}
         <div className="submit-container">
-          <div className={action === "Login" ? "submit gray" : "submit"} onClick={() => setAction("Sign Up")}>Sign Up</div>
-          <div className={action === "Sign Up" ? "submit gray" : "submit"} onClick={() => setAction("Login")}>Login</div>
+          <div className={action === "Login" ? "submit gray" : "submit"} onClick={() => handleSignUp()}>Sign Up</div>
+          <div className={action === "Sign Up" ? "submit gray" : "submit"} onClick={() => handleLogin()}>Login</div>
         </div>
       </div>
     </div>

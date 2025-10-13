@@ -104,7 +104,7 @@ async def register_user(db: db_dependency, create_user_request: createUserReques
     db.add(create_user_model)
     db.commit()
 
-    return create_user_model
+    return {"username": create_user_model.username}
 
 
 # Login a User
