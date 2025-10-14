@@ -5,6 +5,9 @@ import user_icon from '../Assets/person.png'
 import email_icon from '../Assets/email.png'
 import password_icon from '../Assets/password.png'
 
+///--- Constants
+const MIN_PASSWORD_LENGTH = 8;
+
 export const LoginSignup = () => {
 
   /// State to toggle between Login and Sign Up
@@ -52,18 +55,20 @@ export const LoginSignup = () => {
       }
 
       /// password length validation
-      if (password.length < 8) {
-        newErrors.password = "Password must be at least 8 characters long";
+      if (password && password.length < MIN_PASSWORD_LENGTH) {
+        newErrors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`;
       }
 
       /// Confirm Password Validation
-      if (password !== confirmPassword) {
+      if (!confirmPassword) {
+        newErrors.confirmPassword = "Confirm Password is required";
+      } else if (password !== confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match";
       }
     }
 
     setErrors(newErrors);
-    /// Return true is no Errors
+    /// Return true if no Errors
     return Object.keys(newErrors).length === 0;
   }
 
@@ -174,6 +179,8 @@ export const LoginSignup = () => {
                   placeholder='First Name'
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  aria-invalid={Boolean(errors.firstName)}
+                  aria-describedby={errors.firstName ? "firstName-error" : undefined}
                 />
               </div>
               <div className="input">
@@ -183,11 +190,13 @@ export const LoginSignup = () => {
                   placeholder="Last Name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  aria-invalid={Boolean(errors.lastName)}
+                  aria-describedby={errors.lastName ? "lastName-error" : undefined}
                 />
               </div>
             </div>
-            {errors.firstName && <p className="error-message">{errors.firstName}</p>}
-            {errors.lastName && <p className="error-message">{errors.lastName}</p>}
+            {errors.firstName && <p id="firstName-error" className="error-message">{errors.firstName}</p>}
+            {errors.lastName && <p id="lastName-error" className="error-message">{errors.lastName}</p>}
 
             <div className="input">
               <img src={email_icon} alt="" />
@@ -196,9 +205,11 @@ export const LoginSignup = () => {
                 placeholder="E-Mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
             </div>
-            {errors.email && <p className="error-message">{errors.email}</p>}
+            {errors.email && <p id="email-error" className="error-message">{errors.email}</p>}
           </div>
         )}
         <div className="input">
@@ -208,9 +219,11 @@ export const LoginSignup = () => {
             placeholder="Username"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
+            aria-invalid={Boolean(errors.userName)}
+            aria-describedby={errors.userName ? "userName-error" : undefined}
           />
         </div>
-        {errors.userName && <p className="error-message">{errors.userName}</p>}
+        {errors.userName && <p id="userName-error" className="error-message">{errors.userName}</p>}
 
         <div className="input">
           <img src={password_icon} alt="" />
@@ -219,9 +232,11 @@ export const LoginSignup = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? "password-error" : undefined}
           />
         </div>
-        {errors.password && <p className="error-message">{errors.password}</p>}
+        {errors.password && <p id="password-error" className="error-message">{errors.password}</p>}
 
         {action === "Sign Up" && (
           <div>
@@ -232,9 +247,11 @@ export const LoginSignup = () => {
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                aria-invalid={Boolean(errors.confirmPassword)}
+                aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
               />
             </div>
-            {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && <p id="confirmPassword-error" className="error-message">{errors.confirmPassword}</p>}
           </div>
         )}
 
