@@ -7,6 +7,11 @@ import password_icon from '../Assets/password.png'
 
 ///--- Constants
 const MIN_PASSWORD_LENGTH = 8;
+const apiUrl = process.env.REACT_APP_API_URL || '';
+
+if (!apiUrl) {
+  console.error("REACT_APP_API_URL environment variable is not set.  API calls will fail.");
+}
 
 export const LoginSignup = () => {
 
@@ -94,7 +99,7 @@ export const LoginSignup = () => {
 
     /// 2. Make the POST request using the fetch API
     try {
-      const response = await fetch('http://localhost:8000/auth/register', {
+      const response = await fetch(`${apiUrl}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +141,7 @@ export const LoginSignup = () => {
 
     /// 2. Make the POST request using the fetch API
     try {
-      const response = await fetch('http://localhost:8000/auth/token', {
+      const response = await fetch(`${apiUrl}/auth/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
