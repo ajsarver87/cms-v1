@@ -64,6 +64,12 @@ export const LoginSignup = () => {
         newErrors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`;
       }
 
+      /// password complexity validation
+      const complexityPattern = new RegExp(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*]).{${MIN_PASSWORD_LENGTH},}$`);
+      if (password && !complexityPattern.test(password)) {
+        newErrors.password = "Password must include 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (!@#$%^&*)";
+      }
+
       /// Confirm Password Validation
       if (!confirmPassword) {
         newErrors.confirmPassword = "Confirm Password is required";
