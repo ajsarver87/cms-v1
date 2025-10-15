@@ -161,6 +161,7 @@ async def login_for_access_token(
         httponly=True,
         samesite="strict",
         secure=True,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
     return {"message": "Login successful"}
