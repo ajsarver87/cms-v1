@@ -111,6 +111,7 @@ export const LoginSignup = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
+        credentials: 'include',
       });
 
       /// 3. Handle the response
@@ -153,6 +154,7 @@ export const LoginSignup = () => {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: loginData,
+        credentials: 'include',
       });
 
       /// 3. Handle the response
@@ -163,8 +165,7 @@ export const LoginSignup = () => {
       }
 
       const result = await response.json();
-      alert(`Login successful! Token: ${result.access}`);
-      localStorage.setItem('token', result.access);
+      alert(`Message: ${result.message}`);
       setErrors({});
     } catch (error) {
       console.error('Error during login:', error);
