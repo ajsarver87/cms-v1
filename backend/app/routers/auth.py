@@ -19,6 +19,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+SPECIAL_CHARACTERS = os.getenv("SPECIAL_CHARACTERS", "!@#$%^&*")
 
 # Validate Critical configuration Values
 if not SECRET_KEY:
@@ -75,7 +76,7 @@ def validate_password_strength(password: str) -> bool:
     has_upper = any(c.isupper() for c in password)
     has_lower = any(c.islower() for c in password)
     has_digit = any(c.isdigit() for c in password)
-    has_special = any(c in "!@#$%^&*" for c in password)
+    has_special = any(c in SPECIAL_CHARACTERS for c in password)
     return has_upper and has_lower and has_digit and has_special
 
 
