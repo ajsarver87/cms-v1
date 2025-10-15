@@ -9,12 +9,16 @@ from starlette import status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import timedelta, datetime, timezone
 import jwt
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-SECRET_KEY = "dee70bf00d73d99c71d5e9a09f1a9baf928001c70655c2e346fa6ac24672a691"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 password_hash = PasswordHash.recommended()
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
