@@ -166,7 +166,6 @@ export const LoginSignup = () => {
 
       const result = await response.json();
       alert(`Message: ${result.message}`);
-      localStorage.setItem('token', result.access);
       setErrors({});
     } catch (error) {
       console.error('Error during login:', error);
