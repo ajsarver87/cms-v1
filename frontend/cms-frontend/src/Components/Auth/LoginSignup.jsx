@@ -7,7 +7,11 @@ import password_icon from '../Assets/password.png'
 
 ///--- Constants
 const MIN_PASSWORD_LENGTH = 8;
-const apiUrl = process.env.REACT_APP_API_URL;
+const apiUrl = process.env.REACT_APP_API_URL || '';
+
+if (!apiUrl) {
+  console.error("REACT_APP_API_URL environment variable is not set.  API calls will fail.");
+}
 
 export const LoginSignup = () => {
 

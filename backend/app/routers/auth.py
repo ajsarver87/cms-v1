@@ -17,8 +17,20 @@ load_dotenv()
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
+# Validate Critical configuration Values
+if not SECRET_KEY:
+    raise RuntimeError("Missing required environmental variable: SECRET_KEY")
+if not ALGORITHM:
+    raise RuntimeError("Missing required environmental variable: ALGORITHM")
+try:
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(ACCESS_TOKEN_EXPIRE_MINUTES)
+    if ACCESS_TOKEN_EXPIRE_MINUTES <= 0:
+        raise ValueError
+except (ValueError, TypeError):
+    raise RuntimeError("ACCESS_TOKEN_EXPIRE_MINUTES must be a positive integer")
 
 password_hash = PasswordHash.recommended()
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
