@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 from ..models import User
 from pwdlib import PasswordHash
@@ -42,9 +42,8 @@ class createUserRequest(BaseModel):
     is_superuser: bool = False
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+class LoginResponse(BaseModel):
+    message: str
 
 
 def get_db():
@@ -140,9 +139,11 @@ async def register_user(db: db_dependency, create_user_request: createUserReques
 
 
 # Login a User
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=LoginResponse)
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency
+    response: Response,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: db_dependency,
 ):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -153,7 +154,16 @@ async def login_for_access_token(
     token = create_access_token(
         user.username, user.id, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    return {"access_token": token, "token_type": "bearer"}
+
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        samesite="strict",
+        secure=True,
+    )
+
+    return {"message": "Login successful"}
 
 
 # Logout a User
