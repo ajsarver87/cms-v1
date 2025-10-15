@@ -7,6 +7,7 @@ import password_icon from '../Assets/password.png'
 
 ///--- Constants
 const MIN_PASSWORD_LENGTH = 8;
+const SPECIAL_CHARACTERS = process.env.REACT_APP_SPECIAL_CHARACTERS || "!@#$%^&*";
 const apiUrl = process.env.REACT_APP_API_URL || '';
 
 if (!apiUrl) {
@@ -59,9 +60,14 @@ export const LoginSignup = () => {
         newErrors.email = "E-Mail is invalid";
       }
 
-      /// password length validation
+      /// password length and complexity validation
       if (password && password.length < MIN_PASSWORD_LENGTH) {
         newErrors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`;
+      } else if (password) {
+        const complexityPattern = new RegExp(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[${SPECIAL_CHARACTERS.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]).{${MIN_PASSWORD_LENGTH},}$`);
+        if (password && !complexityPattern.test(password)) {
+          newErrors.password = `Password must include 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (${SPECIAL_CHARACTERS})`;
+        }
       }
 
       /// Confirm Password Validation

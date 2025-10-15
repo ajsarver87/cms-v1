@@ -19,6 +19,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+SPECIAL_CHARACTERS = os.getenv("SPECIAL_CHARACTERS", "!@#$%^&*")
 
 # Validate Critical configuration Values
 if not SECRET_KEY:
@@ -65,6 +66,20 @@ def get_password_hash(password):
     return password_hash.hash(password)
 
 
+def validate_password_strength(password: str) -> bool:
+    """Validate the strength of the password.
+    A strong password should be at least 8 characters long and include
+    at least one uppercase letter, one lowercase letter, one digit, and one special character.
+    """
+    if len(password) < 8:
+        return False
+    has_upper = any(c.isupper() for c in password)
+    has_lower = any(c.islower() for c in password)
+    has_digit = any(c.isdigit() for c in password)
+    has_special = any(c in SPECIAL_CHARACTERS for c in password)
+    return has_upper and has_lower and has_digit and has_special
+
+
 def authenticate_user(username: str, password: str, db: db_dependency):
     user = db.query(User).filter(User.username == username).first()
     if not user:
@@ -102,6 +117,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 # Register a New User
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(db: db_dependency, create_user_request: createUserRequest):
+    if not validate_password_strength(create_user_request.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character.",
+        )
+
     create_user_model = User(
         email=create_user_request.email,
         username=create_user_request.username,
