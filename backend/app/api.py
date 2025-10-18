@@ -16,8 +16,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["POST"],
-    allow_headers=["Content-Type"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 models.Base.metadata.create_all(bind=engine)
