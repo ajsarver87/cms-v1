@@ -14,7 +14,7 @@ if (!apiUrl) {
   console.error("REACT_APP_API_URL environment variable is not set.  API calls will fail.");
 }
 
-export const LoginSignup = () => {
+export const LoginSignup = ({ onLoginSuccess }) => {
 
   /// State to toggle between Login and Sign Up
   const [action, setAction] = useState("Sign Up")
@@ -167,6 +167,11 @@ export const LoginSignup = () => {
       const result = await response.json();
       alert(`Message: ${result.message}`);
       setErrors({});
+
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+
     } catch (error) {
       console.error('Error during login:', error);
       alert('An error occurred. Please try again later.');
