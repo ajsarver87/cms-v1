@@ -1,8 +1,7 @@
 import './App.css';
+import api from './api.js';
 import { LoginSignup } from './Components/Auth/LoginSignup';
 import React, { useState } from 'react';
-
-const apiUrl = process.env.REACT_APP_API_URL || '';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -16,7 +15,7 @@ function App() {
       const response = await api.post('/auth/logout');
 
       if (response.ok) {
-        const result = await response.json();
+        const result = await response.data;
         alert(result.message);
         setIsLoggedIn(false);
       } else {
