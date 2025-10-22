@@ -13,14 +13,9 @@ function App() {
   const handleLogout = async () => {
     try {
       const response = await api.post('/auth/logout');
-
-      if (response.ok) {
-        const result = await response.data;
-        alert(result.message);
-        setIsLoggedIn(false);
-      } else {
-        alert("Logout failed. Please try again.");
-      }
+      const result = response.data;
+      alert(result.message);
+      setIsLoggedIn(false);
     } catch (error) {
       console.error('Error during logout:', error);
       alert('An error occurred during logout.');
