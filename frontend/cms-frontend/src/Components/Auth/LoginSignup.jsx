@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './LoginSignup.css'
+import api from '../../api.js';
 
 import user_icon from '../Assets/person.png'
 import email_icon from '../Assets/email.png'
@@ -105,29 +106,15 @@ export const LoginSignup = ({ onLoginSuccess }) => {
 
     /// 2. Make the POST request using the fetch API
     try {
-      const response = await fetch(`${apiUrl}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-        credentials: 'include',
-      });
-
-      /// 3. Handle the response
-      if (!response.ok) {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.detail}`);
-        return;
-      }
-
-      const result = await response.json();
+      const response = await api.post('/auth/register', userData);
+      const result = response.data;
       alert(`User ${result.username} registered successfully!`);
       setAction("Login");
       setErrors({});
     } catch (error) {
+      const errorMsg = error.response?.data?.detail || 'Registration failed. Please try again.';
       console.error('Error during sign up:', error);
-      alert('An error occurred. Please try again later.');
+      alert(errorMsg);
     }
   };
 
@@ -148,24 +135,9 @@ export const LoginSignup = ({ onLoginSuccess }) => {
 
     /// 2. Make the POST request using the fetch API
     try {
-      const response = await fetch(`${apiUrl}/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: loginData,
-        credentials: 'include',
-      });
-
-      /// 3. Handle the response
-      if (!response.ok) {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.detail}`);
-        return;
-      }
-
-      const result = await response.json();
-      alert(`Message: ${result.message}`);
+      const response = await api.post('/auth/token', loginData);
+      const result = response.data;
+      alert(`Message: ${result.message || 'Login successful!'}`);
       setErrors({});
 
       if (onLoginSuccess) {
@@ -173,8 +145,9 @@ export const LoginSignup = ({ onLoginSuccess }) => {
       }
 
     } catch (error) {
+      const errorMsg = error.response?.data?.detail || 'Login failed. Please check your credentials and try again.';
       console.error('Error during login:', error);
-      alert('An error occurred. Please try again later.');
+      alert(errorMsg);
     }
   };
 
