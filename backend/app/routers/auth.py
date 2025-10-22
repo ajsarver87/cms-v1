@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from pydantic import BaseModel
 from ..models import User
 from pwdlib import PasswordHash
@@ -19,7 +19,9 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 SPECIAL_CHARACTERS = os.getenv("SPECIAL_CHARACTERS", "!@#$%^&*")
+
 
 # Validate Critical configuration Values
 if not SECRET_KEY:
@@ -43,6 +45,10 @@ class createUserRequest(BaseModel):
 
 
 class LoginResponse(BaseModel):
+    message: str
+
+
+class RefreshResponse(BaseModel):
     message: str
 
 
@@ -89,6 +95,13 @@ def authenticate_user(username: str, password: str, db: db_dependency):
 
 
 def create_access_token(username: str, userid: int, expires_delta: timedelta):
+    encode = {"sub": username, "id": userid}
+    expires = datetime.now(timezone.utc) + expires_delta
+    encode.update({"exp": expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_refresh_token(username: str, userid: int, expires_delta: timedelta):
     encode = {"sub": username, "id": userid}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({"exp": expires})
@@ -151,18 +164,35 @@ async def login_for_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
         )
-    token = create_access_token(
+    access_token = create_access_token(
         user.username, user.id, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    refresh_token = create_refresh_token(
+        user.username, user.id, timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
 
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {token}",
+        value=f"Bearer {access_token}",
         httponly=True,
         samesite="strict",
         secure=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/",
     )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=f"Bearer {refresh_token}",
+        httponly=True,
+        samesite="strict",
+        secure=True,
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        path="/auth/refresh",
+    )
+
+    user.last_login = datetime.now(timezone.utc)
+    db.commit()
 
     return {"message": "Login successful"}
 
@@ -173,12 +203,86 @@ async def logout_user(response: Response):
     response.delete_cookie(
         key="access_token", httponly=True, samesite="strict", secure=True
     )
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        samesite="strict",
+        secure=True,
+        path="/auth/refresh",
+    )
     return {"message": "Logout successful"}
 
 
-# Get a Token
-
 # Refresh Token
+@router.post("/refresh", response_model=RefreshResponse)
+async def refresh_access_token(
+    response: Response,
+    refresh_token: Annotated[str | None, Cookie()] = None,
+):
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token missing",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+        if username is None or user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        new_access_token = create_access_token(username, user_id, access_token_expires)
+        response.set_cookie(
+            key="access_token",
+            value=f"Bearer {new_access_token}",
+            httponly=True,
+            samesite="strict",
+            secure=True,
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            path="/",
+        )
+        return {"message": "Access token refreshed successfully"}
+
+    except jwt.ExpiredSignatureError:
+        response.delete_cookie(
+            key="refresh_token",
+            httponly=True,
+            samesite="strict",
+            secure=True,
+            path="/auth/refresh",
+        )
+        response.delete_cookie(
+            key="access_token", httponly=True, samesite="strict", secure=True, path="/"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token expired, please log in again",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.PyJWTError:
+        response.delete_cookie(
+            key="refresh_token",
+            httponly=True,
+            samesite="strict",
+            secure=True,
+            path="/auth/refresh",
+        )
+        response.delete_cookie(
+            key="access_token", httponly=True, samesite="strict", secure=True, path="/"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
 
 # Forgot Password
 

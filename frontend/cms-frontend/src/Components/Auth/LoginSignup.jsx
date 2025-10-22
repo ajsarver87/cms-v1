@@ -105,14 +105,7 @@ export const LoginSignup = ({ onLoginSuccess }) => {
 
     /// 2. Make the POST request using the fetch API
     try {
-      const response = await fetch(`${apiUrl}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-        credentials: 'include',
-      });
+      const response = await api.post('/auth/register/', userData);
 
       /// 3. Handle the response
       if (!response.ok) {
@@ -148,14 +141,7 @@ export const LoginSignup = ({ onLoginSuccess }) => {
 
     /// 2. Make the POST request using the fetch API
     try {
-      const response = await fetch(`${apiUrl}/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: loginData,
-        credentials: 'include',
-      });
+      const response = await api.post('/auth/token', loginData);
 
       /// 3. Handle the response
       if (!response.ok) {

@@ -13,13 +13,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(`${apiUrl}/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
+      const response = await api.post('/auth/logout');
 
       if (response.ok) {
         const result = await response.json();
