@@ -176,10 +176,6 @@ export const LoginSignup = ({ onLoginSuccess }) => {
       console.error('Error during login:', error);
       alert('An error occurred. Please try again later.');
     }
-
-    const handleLogout = async () => {
-
-    }
   };
 
   return (
