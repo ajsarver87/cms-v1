@@ -168,6 +168,13 @@ async def login_for_access_token(
 
 
 # Logout a User
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout_user(response: Response):
+    response.delete_cookie(
+        key="access_token", httponly=True, samesite="strict", secure=True
+    )
+    return {"message": "Logout successful"}
+
 
 # Get a Token
 
