@@ -107,7 +107,7 @@ export const LoginSignup = ({ onLoginSuccess }) => {
     /// 2. Make the POST request using the fetch API
     try {
       const response = await api.post('/auth/register', userData);
-      const result = await response.data;
+      const result = response.data;
       alert(`User ${result.username} registered successfully!`);
       setAction("Login");
       setErrors({});
@@ -136,7 +136,7 @@ export const LoginSignup = ({ onLoginSuccess }) => {
     /// 2. Make the POST request using the fetch API
     try {
       const response = await api.post('/auth/token', loginData);
-      const result = await response.data;
+      const result = response.data;
       alert(`Message: ${result.message || 'Login successful!'}`);
       setErrors({});
 
